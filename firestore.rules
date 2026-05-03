@@ -1,0 +1,51 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper Functions
+    function isSignedIn() { return request.auth != null; }
+    function isVerified() { return isSignedIn() && request.auth.token.email_verified == true; }
+    function isAdmin() { return isVerified() && request.auth.token.email == 'zahratulnazirah@gmail.com'; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    // Imam Validation
+    function isValidImam(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 100
+        && data.isActive is bool
+        && (data.keys().hasAll(['name', 'isActive']) && data.keys().size() >= 2);
+    }
+
+    // Attendance Validation
+    function isValidAttendance(data) {
+      return data.date is string && data.date.matches('^\\d{4}-\\d{2}-\\d{2}$')
+        && data.imamId is string && isValidId(data.imamId)
+        && data.prayerType in ['Subuh', 'Maghrib', 'Isyak']
+        && data.amount == 5
+        && (data.keys().hasAll(['date', 'imamId', 'prayerType', 'amount']) && data.keys().size() >= 4);
+    }
+
+    match /imams/{imamId} {
+      allow read: if isSignedIn();
+      allow create: if isAdmin() && isValidImam(incoming());
+      allow update: if isAdmin() && isValidImam(incoming()) && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['name', 'isActive'])
+      );
+      allow delete: if isAdmin();
+    }
+
+    match /attendance/{attendanceId} {
+      allow read: if isSignedIn();
+      allow create: if isVerified() && isValidAttendance(incoming()) && exists(/databases/$(database)/documents/imams/$(incoming().imamId));
+      allow update: if isVerified() && isValidAttendance(incoming()) && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['amount', 'prayerType']) // Very limited updates
+      ) && incoming().date == existing().date && incoming().imamId == existing().imamId;
+      allow delete: if isVerified();
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Imam Attendance & Allowance Tracker",
+  "description": "A comprehensive attendance tracking system for mosque imams with automatic allowance calculation and PDF report generation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

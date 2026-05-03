@@ -1,0 +1,38 @@
+{
+  "entities": {
+    "Imam": {
+      "title": "Imam",
+      "description": "Details of the mosque imam",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Full name of the imam" },
+        "isActive": { "type": "boolean", "description": "Whether the imam is currently active" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "isActive"]
+    },
+    "AttendanceRecord": {
+      "title": "Attendance Record",
+      "description": "A record of an imam's attendance for a specific prayer",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "description": "Date of attendance in YYYY-MM-DD format" },
+        "imamId": { "type": "string", "description": "ID of the imam" },
+        "prayerType": { "type": "string", "enum": ["Subuh", "Maghrib", "Isyak"], "description": "Type of prayer" },
+        "amount": { "type": "number", "description": "Allowance amount for this prayer (MYR)" },
+        "recordedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["date", "imamId", "prayerType", "amount"]
+    }
+  },
+  "firestore": {
+    "/imams/{imamId}": {
+      "schema": "Imam",
+      "description": "Collection of imams"
+    },
+    "/attendance/{attendanceId}": {
+      "schema": "AttendanceRecord",
+      "description": "Collection of attendance records"
+    }
+  }
+}
