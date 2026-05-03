@@ -58,9 +58,9 @@ export default function MonthlyReport() {
     doc.setFontSize(20);
     doc.setTextColor(5, 150, 105); // Emerald color
     doc.text('SURAU SERI DAHLIA', 105, 18, { align: 'center' });
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.setTextColor(100);
-    doc.text('Bandar Seri Putra, 43000 Kajang, Selangor', 105, 24, { align: 'center' });
+    doc.text('Pangsapuri Seri Dahlia, Jalan Seri Putra 4, Bandar Seri Putra Bangi, 43000 Kajang, Selangor.', 105, 24, { align: 'center' });
     doc.setFontSize(14);
     doc.setTextColor(0);
     doc.text(title, 105, 34, { align: 'center' });

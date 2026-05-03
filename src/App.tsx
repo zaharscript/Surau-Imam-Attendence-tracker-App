@@ -43,7 +43,7 @@ export default function App() {
             </div>
             <div className="space-y-4">
                 <h1 className="text-4xl font-black text-emerald-950 dark:text-emerald-500 tracking-tight">Kehadiran Imam</h1>
-                <p className="text-emerald-800/70 dark:text-emerald-400/60 font-bold whitespace-pre-line uppercase tracking-widest text-xs">Surau Seri Dahlia{"\n"}Bandar Seri Putra</p>
+                <p className="text-emerald-800/70 dark:text-emerald-400/60 font-bold whitespace-pre-line uppercase tracking-widest text-xs">Surau Seri Dahlia{"\n"}Bandar Seri Putra, Bangi</p>
             </div>
             <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-2xl shadow-emerald-200/50 dark:shadow-none space-y-6 border border-white dark:border-slate-800 transition-colors">
                 <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">Sila log masuk dengan akaun pentadbir untuk mengurus senarai imam dan merekod kehadiran solat berjemaah.</p>
