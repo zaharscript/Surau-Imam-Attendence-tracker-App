@@ -1,12 +1,27 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import firebaseConfigLocal from '../../firebase-applet-config.json';
 
-const app = initializeApp(firebaseConfigLocal);
-export const db = getFirestore(app, firebaseConfigLocal.firestoreDatabaseId);
+// 🔥 Replace these with your REAL Firebase values
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+};
+
+
+// ✅ Initialize Firebase (ONLY ONCE)
+const app = initializeApp(firebaseConfig);
+
+// ✅ Services
+export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
+
+// -------------------- TYPES --------------------
 
 export enum OperationType {
   CREATE = 'create',
@@ -34,7 +49,13 @@ export interface FirestoreErrorInfo {
   }
 }
 
-export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+// -------------------- ERROR HANDLER --------------------
+
+export function handleFirestoreError(
+  error: unknown,
+  operationType: OperationType,
+  path: string | null
+) {
   const errInfo: FirestoreErrorInfo = {
     error: error instanceof Error ? error.message : String(error),
     authInfo: {
@@ -43,17 +64,23 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
       emailVerified: auth.currentUser?.emailVerified,
       isAnonymous: auth.currentUser?.isAnonymous,
       tenantId: auth.currentUser?.tenantId,
-      providerInfo: auth.currentUser?.providerData?.map(provider => ({
-        providerId: provider.providerId,
-        email: provider.email,
-      })) || []
+      providerInfo:
+        auth.currentUser?.providerData?.map(provider => ({
+          providerId: provider.providerId,
+          email: provider.email,
+        })) || [],
     },
     operationType,
-    path
-  }
-  console.error('Firestore Error: ', JSON.stringify(errInfo));
+    path,
+  };
+
+  console.error('🔥 Firestore Error:', errInfo);
   throw new Error(JSON.stringify(errInfo));
 }
 
-export const loginWithGoogle = () => signInWithPopup(auth, googleProvider);
+// -------------------- AUTH HELPERS --------------------
+
+export const loginWithGoogle = () =>
+  signInWithPopup(auth, googleProvider);
+
 export const logout = () => signOut(auth);
