@@ -1,122 +1,107 @@
 import {
   collection,
   addDoc,
-  updateDoc,
   deleteDoc,
-  query,
-  getDocs,
-  where,
   doc,
-  orderBy,
   onSnapshot,
-  Timestamp,
-  serverTimestamp,
-} from 'firebase/firestore';
-import { db, handleFirestoreError, OperationType } from '../lib/firebase';
-import { Imam, AttendanceRecord, PrayerType } from '../types';
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
+import { db } from "../lib/firebase";
 
-const IMAMS_COL = 'imams';
-const ATTENDANCE_COL = 'attendance';
+// -------------------- IMAMS --------------------
 
-// Imam Operations
-export const getImams = async () => {
-  try {
-    const q = query(collection(db, IMAMS_COL), orderBy('name', 'asc'));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Imam));
-  } catch (error) {
-    handleFirestoreError(error, OperationType.LIST, IMAMS_COL);
-    return [];
-  }
-};
+// Subscribe to all imams
+export const subscribeImams = (callback: any) => {
+  const q = collection(db, "imams");
 
-export const subscribeImams = (callback: (imams: Imam[]) => void) => {
-  const q = query(collection(db, IMAMS_COL), orderBy('name', 'asc'));
   return onSnapshot(q, (snapshot) => {
-    callback(snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Imam)));
-  }, (error) => {
-    handleFirestoreError(error, OperationType.GET, IMAMS_COL);
+    const imams = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    callback(imams);
   });
 };
 
+// Add imam
 export const addImam = async (name: string) => {
-  try {
-    await addDoc(collection(db, IMAMS_COL), {
-      name,
-      isActive: true,
-      createdAt: new Date().toISOString(),
-    });
-  } catch (error) {
-    handleFirestoreError(error, OperationType.CREATE, IMAMS_COL);
-  }
+  await addDoc(collection(db, "imams"), {
+    name,
+    isActive: true,
+  });
 };
 
-export const toggleImamStatus = async (id: string, isActive: boolean) => {
-  try {
-    await updateDoc(doc(db, IMAMS_COL, id), { isActive });
-  } catch (error) {
-    handleFirestoreError(error, OperationType.UPDATE, `${IMAMS_COL}/${id}`);
-  }
-};
-
+// Delete imam
 export const deleteImam = async (id: string) => {
-  try {
-    await deleteDoc(doc(db, IMAMS_COL, id));
-  } catch (error) {
-    handleFirestoreError(error, OperationType.DELETE, `${IMAMS_COL}/${id}`);
-  }
+  await deleteDoc(doc(db, "imams", id));
 };
 
-// Attendance Operations
-export const getAttendanceByMonth = async (month: string) => {
-  try {
-    // month format YYYY-MM
-    const q = query(
-      collection(db, ATTENDANCE_COL),
-      where('date', '>=', `${month}-01`),
-      where('date', '<=', `${month}-31`),
-      orderBy('date', 'asc')
-    );
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as AttendanceRecord));
-  } catch (error) {
-    handleFirestoreError(error, OperationType.LIST, ATTENDANCE_COL);
-    return [];
-  }
+// Toggle active status
+export const toggleImamStatus = async (id: string, isActive: boolean) => {
+  const ref = doc(db, "imams", id);
+  await (await import("firebase/firestore")).updateDoc(ref, { isActive });
 };
 
-export const subscribeAttendanceByMonth = (month: string, callback: (records: AttendanceRecord[]) => void) => {
-    const q = query(
-      collection(db, ATTENDANCE_COL),
-      where('date', '>=', `${month}-01`),
-      where('date', '<=', `${month}-31`),
-      orderBy('date', 'asc')
-    );
-    return onSnapshot(q, (snapshot) => {
-      callback(snapshot.docs.map(d => ({ id: d.id, ...d.data() } as AttendanceRecord)));
-    }, (error) => {
-      handleFirestoreError(error, OperationType.GET, ATTENDANCE_COL);
-    });
-}
+// -------------------- ATTENDANCE --------------------
 
-export const toggleAttendance = async (date: string, imamId: string, prayerType: PrayerType, existingId?: string) => {
+// Subscribe attendance by month
+export const subscribeAttendanceByMonth = (month: string, callback: any) => {
+  // month format: "2026-05"
+  const start = `${month}-01`;
+  const end = `${month}-31`;
+
+  const q = query(
+    collection(db, "attendance"),
+    where("date", ">=", start),
+    where("date", "<=", end)
+  );
+
+  return onSnapshot(q, (snapshot) => {
+    const records = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    callback(records);
+  });
+};
+
+// Toggle attendance (add/remove)
+export const toggleAttendance = async (
+  date: string,
+  imamId: string,
+  prayerType: string,
+  existingId?: string
+) => {
+  // If record exists → delete
   if (existingId) {
-    try {
-      await deleteDoc(doc(db, ATTENDANCE_COL, existingId));
-    } catch (error) {
-      handleFirestoreError(error, OperationType.DELETE, `${ATTENDANCE_COL}/${existingId}`);
-    }
-  } else {
-    try {
-      await addDoc(collection(db, ATTENDANCE_COL), {
-        date,
-        imamId,
-        prayerType,
-        amount: 5,
-        recordedAt: new Date().toISOString(),
-      });
-    } catch (error) {
-      handleFirestoreError(error, OperationType.CREATE, ATTENDANCE_COL);
-    }
+    await deleteDoc(doc(db, "attendance", existingId));
+    return;
   }
+
+  // Check if prayer already taken by another imam
+  const q = query(
+    collection(db, "attendance"),
+    where("date", "==", date),
+    where("prayerType", "==", prayerType)
+  );
+
+  const snapshot = await getDocs(q);
+
+  const taken = snapshot.docs.find(
+    (d) => d.data().imamId !== imamId
+  );
+
+  if (taken) {
+    console.warn("Prayer already taken by another imam");
+    return;
+  }
+
+  // Otherwise → create record
+  await addDoc(collection(db, "attendance"), {
+    imamId,
+    date,
+    prayerType,
+  });
 };
