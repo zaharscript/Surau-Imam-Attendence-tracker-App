@@ -5,7 +5,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { loginWithGoogle, logout } from '../../lib/firebase';
 import { motion, AnimatePresence } from 'motion/react';
 
-import logo from '../../assets/images/mosque_logo_1777792398407.png';
+import logo from '../../assets/images/logo.jpg';
 
 interface NavbarProps {
   user: User | null;
@@ -53,9 +53,9 @@ export default function Navbar({ user }: NavbarProps) {
               <img src={logo} alt="Surau Logo" className="w-full h-full object-cover" />
             </div>
             <div className="flex flex-col leading-tight">
-                <span className="font-bold text-lg tracking-tight hidden sm:inline">Surau Seri Dahlia</span>
-                <span className="text-[10px] font-bold opacity-80 uppercase tracking-widest hidden sm:inline">Sistem Kehadiran</span>
-                <span className="font-bold text-lg sm:hidden">Surau Dahlia</span>
+              <span className="font-bold text-lg tracking-tight hidden sm:inline">Surau Seri Dahlia</span>
+              <span className="text-[10px] font-bold opacity-80 uppercase tracking-widest hidden sm:inline">Sistem Kehadiran</span>
+              <span className="font-bold text-lg sm:hidden">Surau Dahlia</span>
             </div>
           </div>
 
@@ -65,11 +65,10 @@ export default function Navbar({ user }: NavbarProps) {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`px-3 py-2 rounded-lg text-sm font-bold transition-colors ${
-                    location.pathname === item.path
+                  className={`px-3 py-2 rounded-lg text-sm font-bold transition-colors ${location.pathname === item.path
                       ? 'bg-emerald-900 dark:bg-emerald-900 text-white'
                       : 'hover:bg-emerald-700'
-                  }`}
+                    }`}
                 >
                   {item.name}
                 </Link>
@@ -121,7 +120,7 @@ export default function Navbar({ user }: NavbarProps) {
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
-             {!user && (
+            {!user && (
               <button
                 onClick={loginWithGoogle}
                 className="bg-white text-emerald-800 p-2 rounded-lg"
@@ -153,11 +152,10 @@ export default function Navbar({ user }: NavbarProps) {
                   key={item.path}
                   to={item.path}
                   onClick={() => setIsMenuOpen(false)}
-                  className={`block px-4 py-3 rounded-xl text-base font-bold ${
-                    location.pathname === item.path
+                  className={`block px-4 py-3 rounded-xl text-base font-bold ${location.pathname === item.path
                       ? 'bg-emerald-900 shadow-inner'
                       : 'hover:bg-emerald-700'
-                  }`}
+                    }`}
                 >
                   {item.name}
                 </Link>

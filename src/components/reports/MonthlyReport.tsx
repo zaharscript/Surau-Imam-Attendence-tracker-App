@@ -8,7 +8,7 @@ import { Button, Card } from '../ui/Common';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-import logo from '../../assets/images/mosque_logo_1777792398407.png';
+import logo from '../../assets/images/logo.jpg';
 
 export default function MonthlyReport() {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
@@ -35,11 +35,11 @@ export default function MonthlyReport() {
     const doc = new jsPDF();
     const title = `Laporan Elaun Imam - ${format(selectedMonth, 'MMMM yyyy', { locale: ms })}`;
     const header = [['Tarikh', ...imams.map(i => i.name)]];
-    
+
     const body = daysInMonth.map(day => {
       const dateStr = format(day, 'yyyy-MM-dd');
       const row: any[] = [format(day, 'dd/MM')];
-      
+
       imams.forEach(imam => {
         const count = attendance.filter(a => a.date === dateStr && a.imamId === imam.id).length;
         row.push(count > 0 ? count : '-');
@@ -53,7 +53,7 @@ export default function MonthlyReport() {
     });
 
     // Add Logo to the left
-    doc.addImage(logo, 'PNG', 14, 10, 22, 22);
+    doc.addImage(logo, 'JPEG', 14, 10, 22, 22);
 
     doc.setFontSize(20);
     doc.setTextColor(5, 150, 105); // Emerald color
@@ -75,7 +75,7 @@ export default function MonthlyReport() {
     });
 
     const finalY = (doc as any).lastAutoTable.finalY || 150;
-    
+
     doc.text('Ringkasan Elaun Bulanan', 14, finalY + 15);
     autoTable(doc, {
       head: [['Nama Imam', 'Jumlah Waktu', 'Jumlah Elaun']],
@@ -103,13 +103,13 @@ export default function MonthlyReport() {
           <p className="text-slate-600 dark:text-slate-400">Semak ringkasan bulanan dan eksport rekod kehadiran.</p>
         </div>
         <div className="flex items-center space-x-2 bg-white dark:bg-slate-900 p-2 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
-           <LayoutGrid className="w-4 h-4 text-emerald-600 ml-2" />
-           <input 
-            type="month" 
+          <LayoutGrid className="w-4 h-4 text-emerald-600 ml-2" />
+          <input
+            type="month"
             className="border-none bg-transparent outline-none font-bold text-emerald-800 dark:text-emerald-400 p-1"
             value={monthStr}
             onChange={(e) => setSelectedMonth(new Date(e.target.value))}
-           />
+          />
         </div>
       </header>
 
@@ -133,69 +133,69 @@ export default function MonthlyReport() {
             <TrendingUp className="w-10 h-10 opacity-20" />
           </div>
         </Card>
-        
+
         <Card className="p-6 bg-slate-900 dark:bg-emerald-900 text-white border-none sm:col-span-2 shadow-xl">
-            <div className="flex items-center space-x-4 h-full">
-                 <div className="p-4 bg-white/10 rounded-2xl">
-                    <FileText className="w-8 h-8 text-emerald-400" />
-                 </div>
-                 <div className="flex-1">
-                    <h3 className="font-bold text-lg">Jana Laporan PDF</h3>
-                    <p className="text-emerald-200/60 text-xs text-pretty">Muat turun salinan penuh kehadiran bulanan imam.</p>
-                 </div>
-                 <Button className="bg-emerald-500 hover:bg-emerald-400 text-white border-none" onClick={generatePDF}>
-                    <Download className="w-4 h-4 mr-2" /> Eksport
-                 </Button>
+          <div className="flex items-center space-x-4 h-full">
+            <div className="p-4 bg-white/10 rounded-2xl">
+              <FileText className="w-8 h-8 text-emerald-400" />
             </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-lg">Jana Laporan PDF</h3>
+              <p className="text-emerald-200/60 text-xs text-pretty">Muat turun salinan penuh kehadiran bulanan imam.</p>
+            </div>
+            <Button className="bg-emerald-500 hover:bg-emerald-400 text-white border-none" onClick={generatePDF}>
+              <Download className="w-4 h-4 mr-2" /> Eksport
+            </Button>
+          </div>
         </Card>
       </div>
 
       {/* Summary Table */}
       <div className="space-y-4">
         <div className="flex items-center space-x-2">
-            <div className="w-2 h-6 bg-emerald-600 rounded-full" />
-            <h3 className="font-bold text-slate-800 dark:text-emerald-500 uppercase tracking-widest text-[10px]">Jadual Ringkasan Elaun</h3>
+          <div className="w-2 h-6 bg-emerald-600 rounded-full" />
+          <h3 className="font-bold text-slate-800 dark:text-emerald-500 uppercase tracking-widest text-[10px]">Jadual Ringkasan Elaun</h3>
         </div>
         <Card className="overflow-hidden dark:bg-slate-900 dark:border-slate-800">
-            <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                <thead>
-                    <tr className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 uppercase text-[10px] font-black tracking-widest border-b border-slate-100 dark:border-slate-800">
-                    <th className="px-6 py-5">Nama Imam</th>
-                    <th className="px-6 py-5 text-center">Subuh</th>
-                    <th className="px-6 py-5 text-center">Maghrib</th>
-                    <th className="px-6 py-5 text-center">Isyak</th>
-                    <th className="px-6 py-5 text-center">Jumlah Waktu</th>
-                    <th className="px-6 py-5 text-right">Elaun</th>
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {imams.map((imam) => {
-                    const subuh = attendance.filter(a => a.imamId === imam.id && a.prayerType === PrayerType.SUBUH).length;
-                    const maghrib = attendance.filter(a => a.imamId === imam.id && a.prayerType === PrayerType.MAGHRIB).length;
-                    const isyak = attendance.filter(a => a.imamId === imam.id && a.prayerType === PrayerType.ISYAK).length;
-                    const total = subuh + maghrib + isyak;
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 uppercase text-[10px] font-black tracking-widest border-b border-slate-100 dark:border-slate-800">
+                  <th className="px-6 py-5">Nama Imam</th>
+                  <th className="px-6 py-5 text-center">Subuh</th>
+                  <th className="px-6 py-5 text-center">Maghrib</th>
+                  <th className="px-6 py-5 text-center">Isyak</th>
+                  <th className="px-6 py-5 text-center">Jumlah Waktu</th>
+                  <th className="px-6 py-5 text-right">Elaun</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {imams.map((imam) => {
+                  const subuh = attendance.filter(a => a.imamId === imam.id && a.prayerType === PrayerType.SUBUH).length;
+                  const maghrib = attendance.filter(a => a.imamId === imam.id && a.prayerType === PrayerType.MAGHRIB).length;
+                  const isyak = attendance.filter(a => a.imamId === imam.id && a.prayerType === PrayerType.ISYAK).length;
+                  const total = subuh + maghrib + isyak;
 
-                    return (
-                        <tr key={imam.id} className="hover:bg-slate-50 transition-colors group dark:hover:bg-slate-800/30">
-                        <td className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300 group-hover:text-emerald-700 dark:group-hover:text-emerald-400">{imam.name}</td>
-                        <td className="px-6 py-4 text-slate-500 dark:text-slate-400 font-medium text-center">{subuh}</td>
-                        <td className="px-6 py-4 text-slate-500 dark:text-slate-400 font-medium text-center">{maghrib}</td>
-                        <td className="px-6 py-4 text-slate-500 dark:text-slate-400 font-medium text-center">{isyak}</td>
-                        <td className="px-6 py-4 text-center">
-                            <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs font-black text-slate-600 dark:text-slate-300">
-                                {total}
-                            </span>
-                        </td>
-                        <td className="px-6 py-4 text-right font-black text-emerald-600 dark:text-emerald-500 text-lg">
-                            RM {(total * 5).toFixed(2)}
-                        </td>
-                        </tr>
-                    );
-                    })}
-                </tbody>
-                </table>
-            </div>
+                  return (
+                    <tr key={imam.id} className="hover:bg-slate-50 transition-colors group dark:hover:bg-slate-800/30">
+                      <td className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300 group-hover:text-emerald-700 dark:group-hover:text-emerald-400">{imam.name}</td>
+                      <td className="px-6 py-4 text-slate-500 dark:text-slate-400 font-medium text-center">{subuh}</td>
+                      <td className="px-6 py-4 text-slate-500 dark:text-slate-400 font-medium text-center">{maghrib}</td>
+                      <td className="px-6 py-4 text-slate-500 dark:text-slate-400 font-medium text-center">{isyak}</td>
+                      <td className="px-6 py-4 text-center">
+                        <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs font-black text-slate-600 dark:text-slate-300">
+                          {total}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right font-black text-emerald-600 dark:text-emerald-500 text-lg">
+                        RM {(total * 5).toFixed(2)}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </Card>
       </div>
     </div>
