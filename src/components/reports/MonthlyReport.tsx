@@ -55,42 +55,44 @@ export default function MonthlyReport() {
     // Add Logo to the left
     doc.addImage(logo, 'JPEG', 14, 10, 22, 22);
 
-    doc.setFontSize(20);
+    doc.setFontSize(16);
     doc.setTextColor(5, 150, 105); // Emerald color
     doc.text('SURAU SERI DAHLIA', 105, 18, { align: 'center' });
-    doc.setFontSize(9);
+    doc.setFontSize(8);
     doc.setTextColor(100);
-    doc.text('Pangsapuri Seri Dahlia, Jalan Seri Putra 4, Bandar Seri Putra Bangi, 43000 Kajang, Selangor.', 105, 24, { align: 'center' });
-    doc.setFontSize(14);
+    doc.text('Pangsapuri Seri Dahlia, Jalan Seri Putra 4, Bandar Seri Putra Bangi, 43000 Kajang, Selangor.', 105, 23, { align: 'center' });
+    doc.setFontSize(12);
     doc.setTextColor(0);
-    doc.text(title, 105, 34, { align: 'center' });
+    doc.text(title, 105, 32, { align: 'center' });
 
     autoTable(doc, {
       head: [header[0]],
       body: body,
-      startY: 45,
+      startY: 40,
       theme: 'grid',
       headStyles: { fillColor: [5, 150, 105] },
-      styles: { fontSize: 8 }
+      styles: { fontSize: 7, cellPadding: 0.8 }
     });
 
     const finalY = (doc as any).lastAutoTable.finalY || 150;
 
-    doc.text('Ringkasan Elaun Bulanan', 14, finalY + 15);
+    doc.setFontSize(10);
+    doc.text('Ringkasan Elaun Bulanan', 14, finalY + 8);
     autoTable(doc, {
       head: [['Nama Imam', 'Jumlah Waktu', 'Jumlah Elaun']],
       body: summaryData,
-      startY: finalY + 20,
+      startY: finalY + 12,
       theme: 'striped',
-      headStyles: { fillColor: [13, 148, 136] }
+      headStyles: { fillColor: [13, 148, 136] },
+      styles: { fontSize: 7.5, cellPadding: 0.8 }
     });
 
     const finalSummaryY = (doc as any).lastAutoTable.finalY || finalY + 40;
 
-    doc.setFontSize(10);
-    doc.text('Bayaran dibuat oleh : ________________________________', 14, finalSummaryY + 15);
-    doc.text('Tarikh : ________________________________', 14, finalSummaryY + 25);
-    doc.text(`Dicetak pada: ${format(new Date(), 'dd/MM/yyyy HH:mm')}`, 14, finalSummaryY + 35);
+    doc.setFontSize(9);
+    doc.text('Bayaran dibuat oleh : ________________________________', 14, finalSummaryY + 8);
+    doc.text('Tarikh : ________________________________', 14, finalSummaryY + 15);
+    doc.text(`Dicetak pada: ${format(new Date(), 'dd/MM/yyyy HH:mm')}`, 14, finalSummaryY + 22);
 
     doc.save(`Elaun_Imam_${monthStr}.pdf`);
   };
