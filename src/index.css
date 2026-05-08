@@ -2,14 +2,40 @@
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", Georgia, serif;
+  
+  --color-emerald-deep: #064e3b;
+  --color-emerald-soft: #065f46;
+  --color-gold-muted: #b45309;
+  --color-gold-bright: #d97706;
+  --color-ivory: #fdfcfb;
+  --color-olive-deep: #3f6212;
 }
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 transition-colors duration-300;
+    @apply bg-slate-50 text-slate-900 transition-colors duration-300 antialiased;
   }
   
   .dark body {
     @apply bg-slate-950 text-slate-50;
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl;
+  }
+  
+  .glass-panel-light {
+    @apply bg-white/70 backdrop-blur-lg border border-white/30 shadow-xl;
+  }
+
+  .cinematic-shadow {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  }
+
+  .gold-glow {
+    text-shadow: 0 0 15px rgba(217, 119, 6, 0.3);
   }
 }
