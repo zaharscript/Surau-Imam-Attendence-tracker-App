@@ -7,7 +7,10 @@ import { AttendanceRecord, Imam, PrayerType } from '../../types';
 import { Button, Card } from '../ui/Common';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-
+import {
+  calculateAttendanceStats,
+  getImamPrayerCount
+} from '../../utils/attendanceHelpers';
 import logo from '../../assets/images/logo.jpg';
 
 export default function MonthlyReport() {
@@ -97,6 +100,11 @@ export default function MonthlyReport() {
     doc.save(`Elaun_Imam_${monthStr}.pdf`);
   };
 
+
+  const {
+    totalSolat,
+    totalElaun,
+  } = calculateAttendanceStats(attendance);
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-12">
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -121,7 +129,9 @@ export default function MonthlyReport() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-emerald-100 text-xs font-bold uppercase tracking-wider mb-1">Jumlah Elaun</p>
-              <h2 className="text-3xl font-black">MYR {(attendance.length * 5).toFixed(2)}</h2>
+              <h2 className="text-3xl font-black">
+                MYR {totalElaun.toFixed(2)}
+              </h2>
             </div>
             <Wallet className="w-10 h-10 opacity-20" />
           </div>
@@ -130,7 +140,7 @@ export default function MonthlyReport() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-teal-100 text-xs font-bold uppercase tracking-wider mb-1">Bilangan Solat</p>
-              <h2 className="text-3xl font-black">{attendance.length}</h2>
+              <h2 className="text-3xl font-black">{totalSolat}</h2>
             </div>
             <TrendingUp className="w-10 h-10 opacity-20" />
           </div>
@@ -173,10 +183,28 @@ export default function MonthlyReport() {
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {imams.map((imam) => {
-                  const subuh = attendance.filter(a => a.imamId === imam.id && a.prayerType === PrayerType.SUBUH).length;
-                  const maghrib = attendance.filter(a => a.imamId === imam.id && a.prayerType === PrayerType.MAGHRIB).length;
-                  const isyak = attendance.filter(a => a.imamId === imam.id && a.prayerType === PrayerType.ISYAK).length;
-                  const total = subuh + maghrib + isyak;
+                  const subuh = getImamPrayerCount(
+                    attendance,
+                    imam.id,
+                    PrayerType.SUBUH
+                  );
+
+                  const maghrib = getImamPrayerCount(
+                    attendance,
+                    imam.id,
+                    PrayerType.MAGHRIB
+                  );
+
+                  const isyak = getImamPrayerCount(
+                    attendance,
+                    imam.id,
+                    PrayerType.ISYAK
+                  );
+
+                  const total = getImamPrayerCount(
+                    attendance,
+                    imam.id
+                  );
 
                   return (
                     <tr key={imam.id} className="hover:bg-slate-50 transition-colors group dark:hover:bg-slate-800/30">

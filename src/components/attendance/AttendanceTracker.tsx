@@ -1,4 +1,11 @@
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from 'date-fns';
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  eachDayOfInterval,
+  isSameDay,
+  isToday
+} from 'date-fns';
 import { ms } from 'date-fns/locale';
 import { Calendar, ChevronLeft, ChevronRight, Check, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
@@ -48,23 +55,66 @@ export default function AttendanceTracker() {
         <header className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-extrabold text-emerald-900 dark:text-emerald-500">Kehadiran</h1>
-            <p className="text-slate-600 dark:text-slate-400">Rekod kehadiran solat imams.</p>
+            <p className="text-slate-600 dark:text-slate-400">Rekod Kehadiran Imam Bertugas.</p>
           </div>
-          <div className="bg-white dark:bg-slate-900 p-3 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center space-x-2">
-            <Calendar className="w-5 h-5 text-emerald-600" />
-            <span className="font-bold text-emerald-900 dark:text-emerald-400">
-              {format(selectedDate, 'dd MMM yyyy', { locale: ms })}
-            </span>
+          <div className="
+  relative flex items-center gap-3
+  bg-gradient-to-br from-emerald-50 to-emerald-100
+  dark:from-emerald-950/40 dark:to-emerald-900/30
+  border border-emerald-200 dark:border-emerald-800
+  px-4 py-3
+  rounded-2xl
+  shadow-sm
+  hover:shadow-md
+  transition-all duration-300
+">
+            <div className="
+    flex items-center justify-center
+    w-9 h-9
+    rounded-xl
+    bg-emerald-600
+    shadow-md
+  ">
+              <Calendar className="w-5 h-5 text-white" />
+            </div>
+
+            <input
+              type="date"
+              value={format(selectedDate, 'yyyy-MM-dd')}
+              onChange={(e) => setSelectedDate(new Date(e.target.value))}
+              className="
+      bg-transparent
+      text-emerald-900
+      dark:text-emerald-300
+      font-extrabold
+      tracking-wide
+      outline-none
+      cursor-pointer
+      appearance-none
+      [color-scheme:light]
+      dark:[color-scheme:dark]
+    "
+            />
           </div>
         </header>
 
         {/* Date Nav */}
         <div className="flex items-center space-x-3">
           <Button variant="outline" size="sm" onClick={() => changeDate(-1)} className="dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300">
-            <ChevronLeft className="w-4 h-4 mr-1" /> Sblm
+            <ChevronLeft className="w-4 h-4 mr-1" /> Sebelum
           </Button>
           <div className="flex-1 flex justify-center">
-            <span className="text-sm font-bold text-slate-400 uppercase tracking-tighter">HARI INI</span>
+            {isToday(selectedDate) && (
+              <span className="
+      text-sm font-bold
+      text-emerald-500
+      uppercase
+      tracking-[0.2em]
+      animate-pulse
+    ">
+                HARI INI
+              </span>
+            )}
           </div>
           <Button variant="outline" size="sm" onClick={() => changeDate(1)} className="dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300">
             Seterusnya <ChevronRight className="w-4 h-4 ml-1" />
@@ -95,10 +145,10 @@ export default function AttendanceTracker() {
                     whileTap={!isTaken ? { scale: 0.95 } : {}}
                     onClick={() => toggleAttendance(format(selectedDate, 'yyyy-MM-dd'), imam.id, prayer, record?.id)}
                     className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all ${isSelected
-                        ? 'bg-emerald-600 border-emerald-600 dark:bg-emerald-700 dark:border-emerald-700 text-white shadow-lg shadow-emerald-200 dark:shadow-none'
-                        : isTaken
-                          ? 'bg-slate-50 dark:bg-slate-800 border-slate-50 dark:border-slate-800 text-slate-300 dark:text-slate-700 cursor-not-allowed opacity-50'
-                          : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-400 hover:border-emerald-100'
+                      ? 'bg-emerald-600 border-emerald-600 dark:bg-emerald-700 dark:border-emerald-700 text-white shadow-lg shadow-emerald-200 dark:shadow-none'
+                      : isTaken
+                        ? 'bg-slate-50 dark:bg-slate-800 border-slate-50 dark:border-slate-800 text-slate-300 dark:text-slate-700 cursor-not-allowed opacity-50'
+                        : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-400 hover:border-emerald-100'
                       }`}
                   >
                     <span className="text-[10px] uppercase tracking-widest font-black mb-1 opacity-70">
