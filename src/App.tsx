@@ -8,6 +8,7 @@ import Navbar from './components/layout/Navbar';
 import AttendanceTracker from './components/attendance/AttendanceTracker';
 import ImamManager from './components/management/ImamManager';
 import MonthlyReport from './components/reports/MonthlyReport';
+import MonthlyRotationManager from './components/rotation/MonthlyRotationManager';
 import { Button } from './components/ui/Common';
 import logo from './assets/images/logo.jpg';
 import loginBg from './assets/images/login-bg.png';
@@ -113,7 +114,7 @@ export default function App() {
 
               <div className="pt-8 border-t border-white/5 flex flex-col items-center space-y-2">
                 <p className="text-[10px] text-ivory/30 uppercase font-bold tracking-[0.3em]">
-                  Islamic Institutional Platform
+                  “Jadikan dirimu bagai pohon yang rendang di mana insan dapat berteduh.”
                 </p>
                 <div className="h-1 w-1 rounded-full bg-gold-muted/50" />
               </div>
@@ -132,6 +133,7 @@ export default function App() {
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Routes>
             <Route path="/" element={<AttendanceTracker />} />
+            <Route path="/rotation" element={<MonthlyRotationManager />} />
             <Route path="/imams" element={<ImamManager />} />
             <Route path="/reports" element={<MonthlyReport />} />
             <Route path="*" element={<Navigate to="/" />} />
@@ -143,3 +145,5 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
+

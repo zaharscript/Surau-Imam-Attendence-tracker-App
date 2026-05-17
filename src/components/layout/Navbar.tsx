@@ -40,6 +40,7 @@ export default function Navbar({ user }: NavbarProps) {
 
   const navItems = [
     { name: 'Utama', path: '/' },
+    { name: 'Jadual Bulanan', path: '/rotation' },
     { name: 'Senarai Imam', path: '/imams' },
     { name: 'Laporan', path: '/reports' },
   ];
@@ -66,8 +67,8 @@ export default function Navbar({ user }: NavbarProps) {
                   key={item.path}
                   to={item.path}
                   className={`px-3 py-2 rounded-lg text-sm font-bold transition-colors ${location.pathname === item.path
-                      ? 'bg-emerald-900 dark:bg-emerald-900 text-white'
-                      : 'hover:bg-emerald-700'
+                    ? 'bg-emerald-900 dark:bg-emerald-900 text-white'
+                    : 'hover:bg-emerald-700'
                     }`}
                 >
                   {item.name}
@@ -153,8 +154,8 @@ export default function Navbar({ user }: NavbarProps) {
                   to={item.path}
                   onClick={() => setIsMenuOpen(false)}
                   className={`block px-4 py-3 rounded-xl text-base font-bold ${location.pathname === item.path
-                      ? 'bg-emerald-900 shadow-inner'
-                      : 'hover:bg-emerald-700'
+                    ? 'bg-emerald-900 shadow-inner'
+                    : 'hover:bg-emerald-700'
                     }`}
                 >
                   {item.name}

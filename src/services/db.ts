@@ -105,3 +105,60 @@ export const toggleAttendance = async (
     prayerType,
   });
 };
+
+// -------------------- ROTATIONS --------------------
+
+// Subscribe to rotations by month
+export const subscribeMonthlyRotations = (month: string, callback: (rotations: any[]) => void) => {
+  const q = query(
+    collection(db, "monthlyRotations"),
+    where("month", "==", month)
+  );
+
+  return onSnapshot(q, (snapshot) => {
+    const rotations = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    callback(rotations);
+  });
+};
+
+// Add monthly rotation
+export const addMonthlyRotation = async (data: {
+  month: string;
+  imamId: string;
+  imamName: string;
+  prayerType: string;
+  days: string[];
+}) => {
+  const { serverTimestamp } = await import("firebase/firestore");
+
+  // Conflict check: check if any other document for same month and prayer contains any of these days
+  const q = query(
+    collection(db, "monthlyRotations"),
+    where("month", "==", data.month),
+    where("prayerType", "==", data.prayerType)
+  );
+
+  const snapshot = await getDocs(q);
+  const existingRotations = snapshot.docs.map(d => ({ id: d.id, ...d.data() as any }));
+
+  for (const day of data.days) {
+    const conflict = existingRotations.find((r: any) => r.days.includes(day));
+    if (conflict) {
+      throw new Error(`${data.prayerType} pada hari ${day} untuk ${data.month} telah ditugaskan kepada ${conflict.imamName}.`);
+    }
+  }
+
+  await addDoc(collection(db, "monthlyRotations"), {
+    ...data,
+    createdAt: serverTimestamp(),
+  });
+};
+
+// Delete monthly rotation
+export const deleteMonthlyRotation = async (id: string) => {
+  await deleteDoc(doc(db, "monthlyRotations", id));
+};
+
