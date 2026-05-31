@@ -30,7 +30,9 @@ export default function AttendanceTracker() {
     };
   }, [currentMonthStr]);
 
-  const activeImams = imams.filter(i => i.isActive);
+  const activeImams = imams
+    .filter(i => i.isActive)
+    .sort((a, b) => a.name.localeCompare(b.name));
   const prayerTypes = [PrayerType.SUBUH, PrayerType.MAGHRIB, PrayerType.ISYAK];
 
   const getDayAttendance = (date: Date, imamId: string, prayer: PrayerType) => {

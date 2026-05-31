@@ -3,12 +3,14 @@ import { AttendanceRecord, PrayerType } from '../types';
 export const getValidAttendance = (
     attendance: AttendanceRecord[]
 ) => {
-    return attendance.filter(
-        (a) =>
-            a.prayerType === PrayerType.SUBUH ||
-            a.prayerType === PrayerType.MAGHRIB ||
-            a.prayerType === PrayerType.ISYAK
-    );
+    return attendance.filter((a) => {
+        const type = a.prayerType?.toUpperCase();
+        return (
+            type === PrayerType.SUBUH.toUpperCase() ||
+            type === PrayerType.MAGHRIB.toUpperCase() ||
+            type === PrayerType.ISYAK.toUpperCase()
+        );
+    });
 };
 
 export const calculateAttendanceStats = (
@@ -24,7 +26,7 @@ export const calculateAttendanceStats = (
             a.prayerType === PrayerType.ISYAK;
 
         if (validPrayer) {
-            uniqueSessions.add(`${a.date}_${a.prayerType}`);
+            uniqueSessions.add(`${a.date}_${a.prayerType?.toUpperCase()}`);
         }
     });
 
@@ -54,12 +56,13 @@ export const getImamPrayerCount = (
         if (!validPrayer) return;
 
         if (a.imamId === imamId) {
+            const incomingType = a.prayerType?.toUpperCase();
             if (prayerType) {
-                if (a.prayerType === prayerType) {
-                    uniqueSessions.add(`${a.date}_${a.prayerType}`);
+                if (incomingType === prayerType.toUpperCase()) {
+                    uniqueSessions.add(`${a.date}_${incomingType}`);
                 }
             } else {
-                uniqueSessions.add(`${a.date}_${a.prayerType}`);
+                uniqueSessions.add(`${a.date}_${incomingType}`);
             }
         }
     });

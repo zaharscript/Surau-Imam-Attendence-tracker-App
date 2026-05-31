@@ -182,7 +182,7 @@ export default function MonthlyReport() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {imams.map((imam) => {
+                {[...imams].sort((a, b) => a.name.localeCompare(b.name)).map((imam) => {
                   const subuh = getImamPrayerCount(
                     attendance,
                     imam.id,

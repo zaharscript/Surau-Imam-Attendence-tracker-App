@@ -74,11 +74,22 @@ export const toggleAttendance = async (
   prayerType: string,
   existingId?: string
 ) => {
-  // Check for any existing records for this prayer session (date + type)
+  // 1. If we have a specific ID to remove, always allow removing it
+  if (existingId) {
+    try {
+      await deleteDoc(doc(db, "attendance", existingId));
+      // FALLTHROUGH: we still want to clean up ANY other records for this session
+    } catch (e) {
+      console.error("Failed to delete existing record", e);
+    }
+  }
+
+  // 2. Query for ANY records for this prayer session to handle duplicates or other imams
+  // We check both current case and uppercase to be safe with historical data
   const q = query(
     collection(db, "attendance"),
     where("date", "==", date),
-    where("prayerType", "==", prayerType)
+    where("prayerType", "in", [prayerType, prayerType.toUpperCase()])
   );
 
   const snapshot = await getDocs(q);
@@ -88,24 +99,28 @@ export const toggleAttendance = async (
     const isTakenByCurrentImam = records.some(d => d.data().imamId === imamId);
 
     if (isTakenByCurrentImam) {
-      // Toggle OFF: Remove all records for this session (helps clean up duplicates)
-      const deletePromises = records.map(d => deleteDoc(doc(db, "attendance", d.id)));
+      // Toggle OFF: Remove all records for this session for this imam (cleanup)
+      const deletePromises = records
+        .filter(d => d.data().imamId === imamId)
+        .map(d => deleteDoc(doc(db, "attendance", d.id)));
       await Promise.all(deletePromises);
       return;
-    } else {
-      // Taken by someone else
+    } else if (!existingId) {
+      // Taken by someone else AND we weren't trying to delete a specific record
       console.warn("Prayer already taken by another imam");
       return;
     }
   }
 
-  // Otherwise Toggle ON → create ONE record
-  await addDoc(collection(db, "attendance"), {
-    imamId,
-    date,
-    prayerType,
-    createdAt: new Date().toISOString()
-  });
+  // 3. Toggle ON (if we didn't just delete anything)
+  if (!existingId) {
+    await addDoc(collection(db, "attendance"), {
+      imamId,
+      date,
+      prayerType,
+      createdAt: new Date().toISOString()
+    });
+  }
 };
 
 // -------------------- ROTATIONS --------------------
