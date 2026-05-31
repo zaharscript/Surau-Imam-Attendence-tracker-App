@@ -74,13 +74,7 @@ export const toggleAttendance = async (
   prayerType: string,
   existingId?: string
 ) => {
-  // If record exists → delete
-  if (existingId) {
-    await deleteDoc(doc(db, "attendance", existingId));
-    return;
-  }
-
-  // Check if prayer already taken by another imam
+  // Check for any existing records for this prayer session (date + type)
   const q = query(
     collection(db, "attendance"),
     where("date", "==", date),
@@ -89,20 +83,28 @@ export const toggleAttendance = async (
 
   const snapshot = await getDocs(q);
 
-  const taken = snapshot.docs.find(
-    (d) => d.data().imamId !== imamId
-  );
+  if (!snapshot.empty) {
+    const records = snapshot.docs;
+    const isTakenByCurrentImam = records.some(d => d.data().imamId === imamId);
 
-  if (taken) {
-    console.warn("Prayer already taken by another imam");
-    return;
+    if (isTakenByCurrentImam) {
+      // Toggle OFF: Remove all records for this session (helps clean up duplicates)
+      const deletePromises = records.map(d => deleteDoc(doc(db, "attendance", d.id)));
+      await Promise.all(deletePromises);
+      return;
+    } else {
+      // Taken by someone else
+      console.warn("Prayer already taken by another imam");
+      return;
+    }
   }
 
-  // Otherwise → create record
+  // Otherwise Toggle ON → create ONE record
   await addDoc(collection(db, "attendance"), {
     imamId,
     date,
     prayerType,
+    createdAt: new Date().toISOString()
   });
 };
 

@@ -14,13 +14,24 @@ export const getValidAttendance = (
 export const calculateAttendanceStats = (
     attendance: AttendanceRecord[]
 ) => {
-    const validAttendance = getValidAttendance(attendance);
+    // Collect unique (date + prayerType) sessions
+    const uniqueSessions = new Set<string>();
 
-    const totalSolat = validAttendance.length;
+    attendance.forEach((a) => {
+        const validPrayer =
+            a.prayerType === PrayerType.SUBUH ||
+            a.prayerType === PrayerType.MAGHRIB ||
+            a.prayerType === PrayerType.ISYAK;
+
+        if (validPrayer) {
+            uniqueSessions.add(`${a.date}_${a.prayerType}`);
+        }
+    });
+
+    const totalSolat = uniqueSessions.size;
     const totalElaun = totalSolat * 5;
 
     return {
-        validAttendance,
         totalSolat,
         totalElaun,
     };
@@ -31,18 +42,27 @@ export const getImamPrayerCount = (
     imamId: string,
     prayerType?: PrayerType
 ) => {
-    return attendance.filter((a) => {
+    // Collect unique (date + prayerType) sessions for this imam
+    const uniqueSessions = new Set<string>();
+
+    attendance.forEach((a) => {
         const validPrayer =
             a.prayerType === PrayerType.SUBUH ||
             a.prayerType === PrayerType.MAGHRIB ||
             a.prayerType === PrayerType.ISYAK;
 
-        if (!validPrayer) return false;
+        if (!validPrayer) return;
 
-        if (prayerType) {
-            return a.imamId === imamId && a.prayerType === prayerType;
+        if (a.imamId === imamId) {
+            if (prayerType) {
+                if (a.prayerType === prayerType) {
+                    uniqueSessions.add(`${a.date}_${a.prayerType}`);
+                }
+            } else {
+                uniqueSessions.add(`${a.date}_${a.prayerType}`);
+            }
         }
+    });
 
-        return a.imamId === imamId;
-    }).length;
+    return uniqueSessions.size;
 };
